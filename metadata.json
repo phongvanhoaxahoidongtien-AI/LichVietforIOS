@@ -1,0 +1,9 @@
+{
+  "name": "Lịch Việt: Văn Hóa & Phong Tục",
+  "description": "Ứng dụng lịch vạn niên tinh tế mang đậm bản sắc Việt Nam với tính năng xem ngày âm dương, lịch block truyền thống, nhắc lịch tâm linh và tìm hiểu phong tục tập quán.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": []
+}
