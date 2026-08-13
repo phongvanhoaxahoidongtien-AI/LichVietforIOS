@@ -6,8 +6,11 @@ import {
   getLunarDate, 
   isRitualDay, 
   getAuspiciousHours, 
-  getDayBranchIndex, 
-  getDayStemIndex,
+  getYearCanChi,
+  getMonthCanChi,
+  getDayCanChi,
+  getDayBranchIndex,
+  getSolarTerm,
   getDirections,
   getClashingSigns,
   getAuspiciousActivities,
@@ -93,8 +96,11 @@ const DailyBlock: React.FC<DailyBlockProps> = ({ date, onNextDay, onPrevDay }) =
   }, [selectedCategory]);
 
   const auspiciousHours = useMemo(() => getAuspiciousHours(date), [date]);
+  const yearCanChi = useMemo(() => getYearCanChi(lunar.year), [lunar.year]);
+  const monthCanChi = useMemo(() => getMonthCanChi(lunar.month, lunar.year), [lunar.month, lunar.year]);
+  const dayCanChi = useMemo(() => getDayCanChi(date), [date]);
   const dayBranch = useMemo(() => BRANCHES[getDayBranchIndex(date)], [date]);
-  const dayStem = useMemo(() => STEMS[getDayStemIndex(date)], [date]);
+  const solarTerm = useMemo(() => getSolarTerm(date), [date]);
   const directions = useMemo(() => getDirections(date), [date]);
   const clashingSigns = useMemo(() => getClashingSigns(date), [date]);
   
@@ -198,20 +204,29 @@ const DailyBlock: React.FC<DailyBlockProps> = ({ date, onNextDay, onPrevDay }) =
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-8 right-8 flex flex-col gap-3">
+        <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-2.5">
           <div className="flex items-center gap-3">
             <div className="bg-red-600 text-white text-[11px] px-3 py-1 rounded-md font-bold uppercase shadow-md tracking-wider">Âm Lịch</div>
             <span className="text-white text-2xl font-bold drop-shadow-md">
-              Mùng {lunar.day} <span className="text-white/80 font-medium text-lg">tháng {lunar.month}</span>
+              {lunar.day <= 10 ? `Mùng ${lunar.day}` : lunar.day === 15 ? `Rằm (15)` : `Ngày ${lunar.day}`} <span className="text-white/80 font-medium text-lg">tháng {lunar.month}{lunar.leap ? ' (Nhuận)' : ''}</span>
             </span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="text-white/90 text-sm font-medium drop-shadow-sm bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">
-              Năm {dayStem} {dayBranch}
+          <div className="flex flex-wrap gap-1.5 text-xs">
+            <span className="text-white/90 font-medium drop-shadow-sm bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15">
+              Năm {yearCanChi}
+            </span>
+            <span className="text-white/90 font-medium drop-shadow-sm bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15">
+              Tháng {monthCanChi}
+            </span>
+            <span className="text-white/90 font-medium drop-shadow-sm bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15">
+              Ngày {dayCanChi}
+            </span>
+            <span className="text-white/90 font-medium drop-shadow-sm bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15">
+              Tiết {solarTerm}
             </span>
             {isRitualDay(lunar) && (
-              <div className="bg-amber-500 text-white text-xs px-3 py-1 rounded-full font-bold animate-pulse shadow-lg flex items-center gap-1.5">
-                <Sparkles size={14} />
+              <div className="bg-amber-500 text-white font-bold animate-pulse shadow-lg px-2.5 py-1 rounded-full flex items-center gap-1">
+                <Sparkles size={12} />
                 Ngày thắp hương
               </div>
             )}
