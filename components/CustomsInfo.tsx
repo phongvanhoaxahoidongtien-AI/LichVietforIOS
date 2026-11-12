@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Flame, CalendarHeart, Quote, Sparkles, ChevronRight, ChevronDown, Compass, ShieldCheck, Heart, Scroll, Search, CheckCircle2, AlertTriangle, Lightbulb } from 'lucide-react';
+import { Flame, CalendarHeart, Quote, Sparkles, ChevronRight, ChevronDown, Compass, ShieldCheck, Heart, Scroll, Search, CheckCircle2 } from 'lucide-react';
 
 interface CustomSection {
   id: string;
@@ -264,7 +264,7 @@ const CustomsInfo: React.FC = () => {
         
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <span className="px-2.5 py-1 bg-amber-400/20 text-amber-200 text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-amber-400/30">
+            <span className="px-2.5 py-1 bg-amber-400/20 text-amber-200 text-[0.625rem] font-extrabold uppercase tracking-widest rounded-full border border-amber-400/30">
               Sổ Tay Văn Hóa
             </span>
           </div>
@@ -276,7 +276,7 @@ const CustomsInfo: React.FC = () => {
           </p>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] text-amber-300/80">
+        <div className="mt-4 pt-3 border-t border-amber-500/20 flex items-center justify-between text-[0.6875rem] text-amber-300/80">
           <span className="flex items-center gap-1">
             <Heart size={13} className="text-red-400" /> Uống nước nhớ nguồn
           </span>
@@ -355,10 +355,10 @@ const CustomsInfo: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded-md ${section.colorTheme.badgeBg} ${section.colorTheme.badgeText}`}>
+                      <span className={`px-2 py-0.5 text-[0.5625rem] font-extrabold rounded-md ${section.colorTheme.badgeBg} ${section.colorTheme.badgeText}`}>
                         {section.badge}
                       </span>
-                      <span className="text-[11px] font-bold text-stone-400">
+                      <span className="text-[0.6875rem] font-bold text-stone-400">
                         Mục {section.categoryNumber}
                       </span>
                     </div>

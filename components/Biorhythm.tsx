@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Activity, Heart, Brain, Zap, User, Calendar, Info, ChevronLeft, ChevronRight, Sparkles, TrendingUp, AlertCircle, BarChart2 } from 'lucide-react';
+import { Activity, Heart, Brain, Zap, User, ChevronLeft, ChevronRight, Sparkles, BarChart2 } from 'lucide-react';
 import { BiorhythmProfile, BiorhythmCycle } from '../types';
+import { KEYS, loadJSON, saveJSON, remove, isObject, parseISODate } from '../services/storage';
 
-const STORAGE_KEY = 'viet-calendar-biorhythm-profile';
+const STORAGE_KEY = KEYS.biorhythm;
 
 const CYCLE_CONFIGS = [
   {
@@ -96,28 +97,21 @@ const Biorhythm: React.FC = () => {
 
   // Load saved profile
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.fullName && parsed.birthDate) {
-          setProfile(parsed);
-          setIsEditing(false);
-        }
-      } catch (e) {
-        console.error('Error loading biorhythm profile', e);
-      }
+    const parsed = loadJSON<Partial<BiorhythmProfile> | null>(STORAGE_KEY, null, isObject as never);
+    if (parsed && typeof parsed.fullName === 'string' && typeof parsed.birthDate === 'string' && parseISODate(parsed.birthDate)) {
+      setProfile(parsed as BiorhythmProfile);
+      setIsEditing(false);
     }
   }, []);
 
   const saveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile.fullName.trim() || !profile.birthDate) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    saveJSON(STORAGE_KEY, profile);
     setIsEditing(false);
   };
 
-  const birthDateObj = useMemo(() => new Date(profile.birthDate), [profile.birthDate]);
+  const birthDateObj = useMemo(() => parseISODate(profile.birthDate) || new Date(1995, 0, 1), [profile.birthDate]);
 
   // Calculate daily cycles
   const dailyCycles = useMemo(() => {
@@ -220,7 +214,7 @@ const Biorhythm: React.FC = () => {
         <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 flex justify-between items-start">
           <div>
-            <span className="text-[11px] font-bold tracking-widest text-amber-300 uppercase block mb-1">
+            <span className="text-[0.6875rem] font-bold tracking-widest text-amber-300 uppercase block mb-1">
               Thuyết Nhịp Sinh Học (Biorhythm)
             </span>
             <h2 className="text-2xl font-extrabold tracking-tight">Nhịp Sinh Học Bản Mệnh</h2>
@@ -245,13 +239,13 @@ const Biorhythm: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-bold text-white leading-none">{profile.fullName}</p>
-                <p className="text-[11px] text-amber-200/80 mt-0.5">
-                  Sinh ngày: {new Date(profile.birthDate).toLocaleDateString('vi-VN')}
+                <p className="text-[0.6875rem] text-amber-200/80 mt-0.5">
+                  Sinh ngày: {birthDateObj.toLocaleDateString('vi-VN')}
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[10px] text-amber-200/70 block uppercase">Chỉ số hài hòa</span>
+              <span className="text-[0.625rem] text-amber-200/70 block uppercase">Chỉ số hài hòa</span>
               <span className="text-lg font-black text-amber-300">{harmonyScore}%</span>
             </div>
           </div>
@@ -309,6 +303,14 @@ const Biorhythm: React.FC = () => {
           >
             Lưu & Xem Nhịp Sinh Học
           </button>
+          <button
+            type="button"
+            onClick={() => { remove(STORAGE_KEY); setProfile({ fullName: '', birthDate: '1995-01-01', birthTime: '08:00' }); }}
+            className="w-full py-2.5 text-sm font-bold text-gray-500 hover:text-red-600"
+          >
+            Xóa thông tin cá nhân đã lưu
+          </button>
+          <p className="text-xs text-gray-500">Họ tên, ngày sinh chỉ lưu trên máy này. Nhịp sinh học là thuyết tham khảo, chưa được khoa học chứng minh.</p>
         </form>
       )}
 
@@ -389,7 +391,7 @@ const Biorhythm: React.FC = () => {
                         </div>
                         <div>
                           <h4 className="font-bold text-gray-900 text-sm">{cycle.name}</h4>
-                          <span className="text-[10px] text-gray-400 font-medium">
+                          <span className="text-[0.625rem] text-gray-400 font-medium">
                             Chu kỳ {cycle.period} ngày
                           </span>
                         </div>
@@ -399,7 +401,7 @@ const Biorhythm: React.FC = () => {
                         <span className="text-lg font-black" style={{ color: cycle.color }}>
                           {cycle.value > 0 ? `+${cycle.value}%` : `${cycle.value}%`}
                         </span>
-                        <span className={`block text-[10px] font-bold ${
+                        <span className={`block text-[0.625rem] font-bold ${
                           cycle.status === 'critical' ? 'text-amber-600' : isPositive ? 'text-emerald-600' : 'text-red-500'
                         }`}>
                           {cycle.status === 'critical' ? 'Điểm chuyển giao' : isPositive ? 'Năng lượng cao' : 'Năng lượng tái tạo'}
@@ -457,7 +459,7 @@ const Biorhythm: React.FC = () => {
               </div>
 
               {/* Legend */}
-              <div className="flex flex-wrap gap-3 text-[11px] font-bold pt-1">
+              <div className="flex flex-wrap gap-3 text-[0.6875rem] font-bold pt-1">
                 {CYCLE_CONFIGS.map(c => (
                   <div key={c.key} className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color }} />
@@ -489,7 +491,7 @@ const Biorhythm: React.FC = () => {
                         </span>
                       </div>
                       {item.isTarget && (
-                        <span className="text-[10px] font-extrabold text-red-600 uppercase tracking-wider">
+                        <span className="text-[0.625rem] font-extrabold text-red-600 uppercase tracking-wider">
                           • Ngày hiện tại
                         </span>
                       )}
@@ -501,7 +503,7 @@ const Biorhythm: React.FC = () => {
                         const isPos = cyc.val >= 0;
                         return (
                           <div key={cyc.key} className="bg-white p-2 rounded-xl border border-gray-100 text-center shadow-2xs">
-                            <span className="text-[9px] font-bold text-gray-400 uppercase block">
+                            <span className="text-[0.5625rem] font-bold text-gray-400 uppercase block">
                               {CYCLE_CONFIGS.find(c => c.key === cyc.key)?.name}
                             </span>
                             <span className="text-xs font-black block mt-0.5" style={{ color: cyc.color }}>
@@ -546,7 +548,7 @@ const Biorhythm: React.FC = () => {
                       }`}
                     >
                       <span className="text-xs font-bold">{d.day}</span>
-                      <span className="text-[9px] opacity-80 mt-0.5 font-semibold">
+                      <span className="text-[0.5625rem] opacity-80 mt-0.5 font-semibold">
                         {d.avg > 0 ? `+${d.avg}` : d.avg}
                       </span>
                     </button>
@@ -554,7 +556,7 @@ const Biorhythm: React.FC = () => {
                 })}
               </div>
 
-              <div className="text-[11px] text-gray-500 bg-gray-50 p-3 rounded-xl space-y-1">
+              <div className="text-[0.6875rem] text-gray-500 bg-gray-50 p-3 rounded-xl space-y-1">
                 <p>• Bấm vào ngày bất kỳ trong tháng để xem chi tiết lời khuyên cụ thể.</p>
                 <p>• Các ngày viền màu vàng nhạt là thời điểm chuyển giao nhịp sinh học.</p>
               </div>
