@@ -18,52 +18,9 @@ export const BRANCH_HOURS: Record<string, string> = {
   "Hợi": "21h - 23h"
 };
 
-const ACTIVITY_MAP: Record<number, { good: string[], bad: string[] }> = {
-  0: { good: ["Ký kết", "Giao dịch", "Cúng bái"], bad: ["Cưới hỏi", "Kiện tụng"] }, // Tý
-  1: { good: ["Xây dựng", "Sửa nhà", "Nhập trạch"], bad: ["Xuất hành", "An táng"] }, // Sửu
-  2: { good: ["Khai trương", "Cầu tài", "Gặp gỡ"], bad: ["Tranh chấp", "Phẫu thuật"] }, // Dần
-  3: { good: ["Tế tự", "Sửa cửa", "Làm vườn"], bad: ["Đổi việc", "Di chuyển xa"] }, // Mão
-  4: { good: ["Động thổ", "Cưới hỏi", "Mọi việc"], bad: ["Kiện cáo", "Tranh chấp"] }, // Thìn
-  5: { good: ["Khám bệnh", "Hội họp", "Đính hôn"], bad: ["Xây nhà", "Đào đất"] }, // Tỵ
-  6: { good: ["Xuất hành", "Mở cửa hàng", "Nhậm chức"], bad: ["Ký hợp đồng", "An táng"] }, // Ngọ
-  7: { good: ["An táng", "Cải táng", "Nghỉ ngơi"], bad: ["Cưới hỏi", "Động thổ"] }, // Mùi
-  8: { good: ["Học hành", "Nghiên cứu", "Giao dịch"], bad: ["Phẫu thuật", "Kiện tụng"] }, // Thân
-  9: { good: ["Dọn dẹp", "Sắp xếp", "Tế tự"], bad: ["Chuyển nhà", "Đi xa"] }, // Dậu
-  10: { good: ["Bảo vệ", "Xây tường", "Cầu tự"], bad: ["Khai trương", "Xuất hành"] }, // Tuất
-  11: { good: ["Tiệc tùng", "Hội họp", "Cầu tài"], bad: ["Sửa chữa", "Động thổ"] }, // Hợi
-};
 
-const DIRECTION_MAP: Record<number, { hy: string, tai: string }> = {
-  0: { hy: "Đông Bắc", tai: "Đông Nam" }, // Giáp
-  5: { hy: "Đông Bắc", tai: "Đông Nam" }, // Kỷ
-  1: { hy: "Tây Bắc", tai: "Chính Đông" }, // Ất
-  6: { hy: "Tây Bắc", tai: "Chính Đông" }, // Canh
-  2: { hy: "Tây Nam", tai: "Chính Đông" }, // Bính
-  7: { hy: "Tây Nam", tai: "Chính Đông" }, // Tân
-  3: { hy: "Chính Nam", tai: "Tây Bắc" }, // Đinh
-  8: { hy: "Chính Nam", tai: "Tây Bắc" }, // Nhâm
-  4: { hy: "Đông Nam", tai: "Chính Bắc" }, // Mậu
-  9: { hy: "Đông Nam", tai: "Chính Bắc" }, // Quý
-};
 
-const CLASH_MAP: Record<number, number> = {
-  0: 6, 1: 7, 2: 8, 3: 9, 4: 10, 5: 11, 6: 0, 7: 1, 8: 2, 9: 3, 10: 4, 11: 5
-};
 
-const AUSPICIOUS_MAP: Record<number, number[]> = {
-  0: [0, 1, 3, 6, 8, 9],
-  6: [0, 1, 3, 6, 8, 9],
-  1: [2, 3, 5, 8, 10, 11],
-  7: [2, 3, 5, 8, 10, 11],
-  2: [0, 1, 4, 5, 7, 10],
-  8: [0, 1, 4, 5, 7, 10],
-  3: [0, 2, 3, 6, 7, 9],
-  9: [0, 2, 3, 6, 7, 9],
-  4: [2, 4, 5, 8, 9, 11],
-  10: [2, 4, 5, 8, 9, 11],
-  5: [1, 4, 6, 7, 10, 11],
-  11: [1, 4, 6, 7, 10, 11],
-};
 
 /* --- Astronomical Vietnamese Lunar Calendar Algorithm (Ho Ngoc Duc, GMT+7) --- */
 
@@ -129,7 +86,8 @@ function getNewMoonDay(k: number, timeZone = 7): number {
 }
 
 function getSunLongitude(jdn: number, timeZone = 7): number {
-  const T = (jdn - 2451545.0 - timeZone / 24.0) / 36525.0;
+  // Bản gốc Hồ Ngọc Đức: lấy thời điểm 0 giờ địa phương (jdn - 0.5 - timeZone/24). Bản cũ thiếu -0.5.
+  const T = (jdn - 0.5 - timeZone / 24.0 - 2451545.0) / 36525.0;
   const T2 = T * T;
   const dr = Math.PI / 180;
   const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
@@ -153,23 +111,44 @@ function getLunarMonth11(yy: number, timeZone = 7): number {
   return nm;
 }
 
+/**
+ * Vị trí (tính từ tháng 11 âm) của tháng nhuận: tháng đầu tiên không chứa trung khí.
+ * Sửa lỗi bản cũ: vòng lặp trả về i thay vì i - 1 nên tháng nhuận bị lùi 1 tháng.
+ * Theo thuật toán gốc của Hồ Ngọc Đức.
+ */
 function getLeapMonthOffset(a11: number, timeZone = 7): number {
-  const k = INT((a11 - 2415021.0769) / 29.53058868 + 0.5);
+  const k = INT((a11 - 2415021.076998695) / 29.530588853 + 0.5);
   let last = 0;
   let i = 1;
   let arc = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
-  while (i <= 14) {
-    const current = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
-    if (current === last) {
-      break;
-    }
-    last = current;
+  do {
+    last = arc;
     i++;
-  }
-  if (i < 14) {
-    return i;
-  }
-  return 0;
+    arc = getSunLongitude(getNewMoonDay(k + i, timeZone), timeZone);
+  } while (arc !== last && i < 14);
+  return i - 1;
+}
+
+/** Kinh độ Mặt Trời (độ, 0–360) tại thời điểm 0 giờ (giờ địa phương) của ngày có số ngày Julius jdn. */
+export function sunLongitudeDeg(jdn: number, timeZone = 7): number {
+  const T = (jdn - 0.5 - timeZone / 24 - 2451545.0) / 36525.0;
+  const T2 = T * T;
+  const dr = Math.PI / 180;
+  const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+  const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+  const DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(M * dr)
+    + (0.019993 - 0.000101 * T) * Math.sin(2 * M * dr)
+    + 0.000290 * Math.sin(3 * M * dr);
+  // Hiệu chỉnh quang sai và chương động (gần đúng)
+  const omega = 125.04 - 1934.136 * T;
+  let L = L0 + DL - 0.00569 - 0.00478 * Math.sin(omega * dr);
+  L = L - 360 * Math.floor(L / 360);
+  return L;
+}
+
+/** Kinh độ Mặt Trời cuối ngày (= 0 giờ ngày hôm sau). Ngày có tiết khí bắt đầu được tính theo tiết mới. */
+export function sunLongitudeEndOfDay(date: Date): number {
+  return sunLongitudeDeg(jdFromDate(date.getDate(), date.getMonth() + 1, date.getFullYear()) + 1);
 }
 
 /**
@@ -178,13 +157,17 @@ function getLeapMonthOffset(a11: number, timeZone = 7): number {
  */
 export function convertSolar2Lunar(dd: number, mm: number, yyyy: number, timeZone = 7): [number, number, number, boolean] {
   const dayNumber = jdFromDate(dd, mm, yyyy);
-  let k = INT((dayNumber - 2415021.0769) / 29.53058868);
-  let monthStart = getNewMoonDay(k + 1, timeZone);
-
-  if (monthStart > dayNumber) {
+  let k = INT((dayNumber - 2415021.076998695) / 29.530588853) + 1;
+  let monthStart = getNewMoonDay(k, timeZone);
+  // Lùi đến khi điểm sóc không vượt quá ngày cần đổi (tránh ngày âm = 0 ở các năm xa, vd 9/4/2062)
+  while (monthStart > dayNumber) {
+    k--;
     monthStart = getNewMoonDay(k, timeZone);
-  } else {
-    k = k + 1;
+  }
+  // Tiến nếu còn điểm sóc khác trước/bằng ngày cần đổi
+  while (getNewMoonDay(k + 1, timeZone) <= dayNumber) {
+    k++;
+    monthStart = getNewMoonDay(k, timeZone);
   }
 
   let a11 = getLunarMonth11(yyyy, timeZone);
@@ -219,14 +202,16 @@ export function convertSolar2Lunar(dd: number, mm: number, yyyy: number, timeZon
     lunarMonth = lunarMonth - 12;
   }
   if (lunarMonth >= 11 && diff < 4) {
-    lunarYear = yyyy - 1;
+    lunarYear -= 1; // bản cũ ghi lunarYear = yyyy - 1 làm tháng 11, 12 âm cuối năm dương bị lùi 1 năm
   }
 
   return [lunarDay, lunarMonth, lunarYear, lunarLeap];
 }
 
 /**
- * Convert Vietnamese Lunar Date to Solar Date [dd, mm, yyyy].
+ * Đổi ngày âm lịch Việt Nam sang dương lịch [dd, mm, yyyy].
+ * Viết lại theo đúng thuật toán Hồ Ngọc Đức (bản cũ thiếu nhánh tháng 11, 12 và xử lý tháng nhuận chưa đúng).
+ * Trả về [0, 0, 0] nếu tháng nhuận không tồn tại trong năm đó.
  */
 export function convertLunar2Solar(
   lunarDay: number,
@@ -235,33 +220,49 @@ export function convertLunar2Solar(
   lunarLeap: boolean = false,
   timeZone = 7
 ): [number, number, number] {
-  let a11 = getLunarMonth11(lunarYear - 1, timeZone);
-  let b11 = getLunarMonth11(lunarYear, timeZone);
-  let leapOff = 0;
-  let leapMonth = 0;
-
-  if (b11 - a11 > 365) {
-    leapOff = getLeapMonthOffset(a11, timeZone);
-    leapMonth = leapOff - 2;
-    if (leapMonth <= 0) {
-      leapMonth += 12;
-    }
+  let a11: number, b11: number;
+  if (lunarMonth < 11) {
+    a11 = getLunarMonth11(lunarYear - 1, timeZone);
+    b11 = getLunarMonth11(lunarYear, timeZone);
+  } else {
+    a11 = getLunarMonth11(lunarYear, timeZone);
+    b11 = getLunarMonth11(lunarYear + 1, timeZone);
   }
-
+  const k = INT(0.5 + (a11 - 2415021.076998695) / 29.530588853);
   let off = lunarMonth - 11;
-  if (off < 0) {
-    off += 12;
+  if (off < 0) off += 12;
+  if (b11 - a11 > 365) {
+    const leapOff = getLeapMonthOffset(a11, timeZone);
+    let leapMonth = leapOff - 2;
+    if (leapMonth < 0) leapMonth += 12;
+    if (lunarLeap && lunarMonth !== leapMonth) return [0, 0, 0];
+    if (lunarLeap || off >= leapOff) off += 1;
+  } else if (lunarLeap) {
+    return [0, 0, 0];
   }
+  const monthStart = getNewMoonDay(k + off, timeZone);
+  return jdToDate(monthStart + lunarDay - 1);
+}
 
-  if (leapOff > 0 && (lunarMonth > leapMonth || (lunarLeap && lunarMonth === leapMonth))) {
-    off += 1;
+/** Tháng nhuận của năm âm lịch (0 nếu không nhuận). */
+export function getLeapMonth(lunarYear: number, timeZone = 7): number {
+  for (let m = 1; m <= 12; m++) {
+    const [d, mm, y] = convertLunar2Solar(1, m, lunarYear, true, timeZone);
+    if (!d) continue;
+    const l = convertSolar2Lunar(d, mm, y, timeZone);
+    if (l[1] === m && l[2] === lunarYear && l[3]) return m;
   }
+  return 0;
+}
 
-  const k = INT((a11 - 2415021.0769) / 29.53058868 + 0.5) + off;
-  const monthStart = getNewMoonDay(k, timeZone);
-  const solarJd = monthStart + lunarDay - 1;
-
-  return jdToDate(solarJd);
+/** Số ngày của tháng âm (29 hoặc 30). */
+export function lunarMonthLength(lunarMonth: number, lunarYear: number, leap = false): number {
+  const [d, m, y] = convertLunar2Solar(1, lunarMonth, lunarYear, leap);
+  if (!d) return 0;
+  const jd = jdFromDate(d, m, y);
+  const [d2, m2, y2] = jdToDate(jd + 29);
+  const l = convertSolar2Lunar(d2, m2, y2);
+  return l[0] === 1 ? 29 : 30;
 }
 
 /**
@@ -335,75 +336,16 @@ export function getDayBranchIndex(date: Date): number {
 /**
  * Get 24 Solar Terms (Tiết khí)
  */
-export function getSolarTerm(date: Date, timeZone = 7): string {
-  const dd = date.getDate();
-  const mm = date.getMonth() + 1;
-  const yyyy = date.getFullYear();
-  const jdn = jdFromDate(dd, mm, yyyy);
+export const SOLAR_TERMS = [
+  "Xuân phân", "Thanh minh", "Cốc vũ", "Lập hạ", "Tiểu mãn", "Mang chủng",
+  "Hạ chí", "Tiểu thử", "Đại thử", "Lập thu", "Xử thử", "Bạch lộ",
+  "Thu phân", "Hàn lộ", "Sương giáng", "Lập đông", "Tiểu tuyết", "Đại tuyết",
+  "Đông chí", "Tiểu hàn", "Đại hàn", "Lập xuân", "Vũ thủy", "Kinh trập"
+];
 
-  const T = (jdn - 2451545.0 - timeZone / 24.0) / 36525.0;
-  const dr = Math.PI / 180;
-  const M = 357.52910 + 35999.05030 * T - 0.0001559 * T * T;
-  const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T * T;
-  const DL = (1.914600 - 0.004817 * T) * Math.sin(M * dr)
-           + (0.019993 - 0.000101 * T) * Math.sin(2 * M * dr)
-           + 0.000290 * Math.sin(3 * M * dr);
-  let L = L0 + DL;
-  L = L - 360 * Math.floor(L / 360);
-
-  const index = Math.floor(L / 15);
-  const SOLAR_TERMS = [
-    "Xuân Phân",
-    "Thanh Minh",
-    "Cốc Vũ",
-    "Lập Hạ",
-    "Tiểu Mãn",
-    "Mang Chủng",
-    "Hạ Chí",
-    "Tiểu Thử",
-    "Đại Thử",
-    "Lập Thu",
-    "Xử Thử",
-    "Bạch Lộ",
-    "Thu Phân",
-    "Hàn Lộ",
-    "Sương Giáng",
-    "Lập Đông",
-    "Tiểu Tuyết",
-    "Đại Tuyết",
-    "Đông Chí",
-    "Tiểu Hàn",
-    "Đại Hàn",
-    "Lập Xuân",
-    "Vũ Thủy",
-    "Kinh Trập"
-  ];
-  return SOLAR_TERMS[index] || "Lập Xuân";
-}
-
-export function getDirections(date: Date) {
-  const stemIndex = getDayStemIndex(date);
-  return DIRECTION_MAP[stemIndex] || { hy: "Tây Nam", tai: "Chính Đông" };
-}
-
-export function getClashingSigns(date: Date): string {
-  const branchIndex = getDayBranchIndex(date);
-  const clashWithIndex = CLASH_MAP[branchIndex];
-  const clashBranch = BRANCHES[clashWithIndex];
-  const stemIdx = getDayStemIndex(date);
-  const stems = [STEMS[(stemIdx + 2) % 10], STEMS[(stemIdx + 6) % 10]];
-  return `${stems[0]} ${clashBranch}, ${stems[1]} ${clashBranch}`;
-}
-
-export function getAuspiciousHours(date: Date): string[] {
-  const branchIndex = getDayBranchIndex(date);
-  const auspiciousIndices = AUSPICIOUS_MAP[branchIndex] || [];
-  return auspiciousIndices.map(idx => `${BRANCHES[idx]} (${BRANCH_HOURS[BRANCHES[idx]]})`);
-}
-
-export function getAuspiciousActivities(date: Date): { good: string[], bad: string[] } {
-  const branchIndex = getDayBranchIndex(date);
-  return ACTIVITY_MAP[branchIndex] || { good: ["Mọi việc"], bad: ["Không có"] };
+/** Tiết khí của ngày (ngày bắt đầu tiết được tính theo tiết mới). */
+export function getSolarTerm(date: Date): string {
+  return SOLAR_TERMS[Math.floor(sunLongitudeEndOfDay(date) / 15) % 24];
 }
 
 export function isRitualDay(lunar: LunarDate): boolean {
