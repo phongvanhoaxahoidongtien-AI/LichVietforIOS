@@ -1,11 +1,16 @@
 
+export type RepeatMode = 'none' | 'lunar-yearly' | 'lunar-monthly' | 'solar-yearly';
+
 export interface Reminder {
   id: string;
   title: string;
   note: string;
-  time: string; // ISO string
-  date: string; // YYYY-MM-DD
+  time: string; // HH:mm (có thể trống)
+  date: string; // YYYY-MM-DD (dương lịch, ngày gốc)
   isRitual: boolean; // Is it a worship day reminder
+  repeat?: RepeatMode;
+  lunarDay?: number;   // dùng khi lặp theo âm lịch
+  lunarMonth?: number;
 }
 
 export interface RitualSettings {
@@ -59,8 +64,15 @@ export interface BiorhythmCycle {
 export enum TabType {
   DAILY = 'DAILY',
   MONTHLY = 'MONTHLY',
-  CONVERTER = 'CONVERTER',
+  ALMANAC = 'ALMANAC',
   REMINDERS = 'REMINDERS',
-  CUSTOMS = 'CUSTOMS',
-  BIORHYTHM = 'BIORHYTHM'
+  MORE = 'MORE',
+}
+
+export interface AppSettings {
+  theme: 'light' | 'dark' | 'system';
+  fontScale: 1 | 1.125 | 1.25;
+  notifications: boolean;
+  /** Hiện tên Trực trên lịch tháng. */
+  showTruc?: boolean;
 }

@@ -1,0 +1,112 @@
+/* Phông chữ đóng gói sẵn trong ứng dụng (không tải từ Google Fonts) – chỉ bộ chữ Latin + Tiếng Việt */
+@import '@fontsource/be-vietnam-pro/vietnamese-400.css';
+@import '@fontsource/be-vietnam-pro/latin-400.css';
+@import '@fontsource/be-vietnam-pro/vietnamese-500.css';
+@import '@fontsource/be-vietnam-pro/latin-500.css';
+@import '@fontsource/be-vietnam-pro/vietnamese-600.css';
+@import '@fontsource/be-vietnam-pro/latin-600.css';
+@import '@fontsource/be-vietnam-pro/vietnamese-700.css';
+@import '@fontsource/be-vietnam-pro/latin-700.css';
+@import '@fontsource/be-vietnam-pro/vietnamese-800.css';
+@import '@fontsource/be-vietnam-pro/latin-800.css';
+@import '@fontsource/noto-serif/vietnamese-600.css';
+@import '@fontsource/noto-serif/latin-600.css';
+@import '@fontsource/noto-serif/vietnamese-700.css';
+@import '@fontsource/noto-serif/latin-700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #FBF6EC;
+  --card: #FFFFFF;
+  --ink: #2B2118;
+  --line: #EEE2C8;
+  color-scheme: light;
+}
+
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+html[data-font='1.125'] { font-size: 18px; }
+html[data-font='1.25'] { font-size: 20px; }
+
+body {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  background: #EFE6D2;
+  color: var(--ink);
+  overscroll-behavior-y: none;
+}
+
+.app-shell { background: var(--paper); }
+
+.paper-texture {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(201, 162, 39, .06), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(179, 38, 30, .05), transparent 45%);
+}
+
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-area-top { padding-top: max(env(safe-area-inset-top), 0.75rem); }
+
+.glass-morphism {
+  background: rgba(251, 246, 236, .86);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Hoa văn trống đồng nhẹ cho tờ lịch */
+.dong-son {
+  background-image: repeating-radial-gradient(circle at 50% 50%, rgba(201, 162, 39, .12) 0 1px, transparent 1px 14px);
+}
+
+/* Lỗ ghim tờ lịch bloc */
+.bloc-holes::before {
+  content: '';
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: 46%; height: 10px;
+  background: radial-gradient(circle, rgba(0,0,0,.35) 3.5px, transparent 4px) 0 0 / 22px 10px repeat-x;
+  opacity: .5;
+}
+
+/* Các lớp animate-in cũ (tailwindcss-animate) – thay bằng hiệu ứng nhẹ */
+.animate-in { animation: fade-in .3s ease-out both; }
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+:focus-visible { outline: 3px solid #C9A227; outline-offset: 2px; border-radius: 8px; }
+
+/* ---------------- Chế độ tối ---------------- */
+html.dark { color-scheme: dark; --paper: #17120E; --card: #221B15; --ink: #F3EADB; --line: #3A2F25; }
+html.dark body { background: #0E0B08; color: var(--ink); }
+html.dark .glass-morphism { background: rgba(23, 18, 14, .86); }
+html.dark .bg-white { background-color: var(--card) !important; }
+html.dark .bg-gray-50, html.dark .bg-gray-50\/50, html.dark .bg-gray-100 { background-color: #2A221B !important; }
+html.dark .bg-giay, html.dark .paper-texture { background-color: var(--paper) !important; }
+html.dark .bg-giay-100 { background-color: #241D17 !important; }
+html.dark .bg-red-50, html.dark .bg-son-50 { background-color: #3A1A16 !important; }
+html.dark .bg-amber-50, html.dark .bg-kim-50, html.dark .bg-amber-50\/40 { background-color: #33290F !important; }
+html.dark .bg-green-50, html.dark .bg-emerald-50 { background-color: #12301F !important; }
+html.dark .bg-blue-50, html.dark .bg-indigo-50, html.dark .bg-purple-50 { background-color: #1A2238 !important; }
+html.dark .text-gray-900, html.dark .text-gray-800, html.dark .text-muc { color: #F3EADB !important; }
+html.dark .text-gray-700, html.dark .text-gray-600 { color: #D9CCB8 !important; }
+html.dark .text-gray-500, html.dark .text-gray-400 { color: #A89A86 !important; }
+html.dark .text-red-700, html.dark .text-son-700, html.dark .text-son-600 { color: #F08A7E !important; }
+html.dark .text-amber-800, html.dark .text-amber-900, html.dark .text-kim-700 { color: #E8CF7A !important; }
+html.dark .text-green-700 { color: #7FD8A4 !important; }
+html.dark .border-gray-100, html.dark .border-gray-200, html.dark .border-giay-200, html.dark .border-amber-100, html.dark .border-red-100, html.dark .border-green-100 { border-color: var(--line) !important; }
+html.dark input, html.dark select, html.dark textarea { background-color: #2A221B; color: var(--ink); border-color: var(--line); }
+html.dark .shadow-sm, html.dark .shadow-md, html.dark .shadow-lg { --tw-shadow-color: rgba(0,0,0,.5); }
+
+@media print {
+  nav, header button { display: none !important; }
+}
+html.dark [role='tab'][aria-selected='true'] { background-color: #3A2F25 !important; color: #F08A7E !important; }
+html.dark [role='tablist'] { background-color: #1D1712 !important; }

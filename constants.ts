@@ -1,13 +1,13 @@
 
 import { WallpaperItem } from './types';
 
-import tetWallpaper from './src/assets/images/tet_vietnam_wallpaper_1785831024589.jpg';
-import flagWallpaper from './src/assets/images/vietnam_flag_wallpaper_1785831040235.jpg';
-import halongWallpaper from './src/assets/images/vietnam_travel_wallpaper_1785831059844.jpg';
-import hanoiWallpaper from './src/assets/images/hanoi_hoankiem_wallpaper_1785831078843.jpg';
-import hoianWallpaper from './src/assets/images/hoian_old_town_1785948613228.jpg';
-import mucangchaiWallpaper from './src/assets/images/mucangchai_terraced_1785948627857.jpg';
-import lotusWallpaper from './src/assets/images/vietnam_lotus_flower_1785948641112.jpg';
+import tetWallpaper from './src/assets/images/tet_vietnam_wallpaper_1785831024589.webp';
+import flagWallpaper from './src/assets/images/vietnam_flag_wallpaper_1785831040235.webp';
+import halongWallpaper from './src/assets/images/vietnam_travel_wallpaper_1785831059844.webp';
+import hanoiWallpaper from './src/assets/images/hanoi_hoankiem_wallpaper_1785831078843.webp';
+import hoianWallpaper from './src/assets/images/hoian_old_town_1785948613228.webp';
+import mucangchaiWallpaper from './src/assets/images/mucangchai_terraced_1785948627857.webp';
+import lotusWallpaper from './src/assets/images/vietnam_lotus_flower_1785948641112.webp';
 
 export const VIETNAMESE_PROVERBS = [
   "Có công mài sắt, có ngày nên kim.",
@@ -96,7 +96,7 @@ export const VIETNAM_WALLPAPERS: WallpaperItem[] = [
   }
 ];
 
-export const FOLK_IMAGES = VIETNAM_WALLPAPERS.map(w => w.url);
+
 
 export const TRADITIONAL_CUSTOMS = [
   {
